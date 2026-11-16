@@ -1,171 +1,227 @@
-(() => {
-  "use strict";
 
-  const paginas = document.querySelectorAll(".pagina");
-  const botoesMenu = document.querySelectorAll("[data-go]");
+// NAVEGAÇÃO DO SITE
 
-  const lista = document.getElementById("lista-redacoes");
-  const detalhe = document.getElementById("detalhe-redacao");
-  const titulo = document.getElementById("titulo-redacao");
-  const tema = document.getElementById("tema-redacao");
-  const texto = document.getElementById("texto-redacao");
-  const pesquisa = document.getElementById("pesquisa-redacoes");
-  const voltar = document.getElementById("voltar-redacoes");
+const navLinks = document.querySelectorAll(".nav-link");
+const pages = document.querySelectorAll(".page");
 
-  function mostrarPagina(id) {
-    const pagina = document.getElementById(id);
+const menuToggle = document.getElementById("menuToggle");
+const mainNav = document.getElementById("mainNav");
 
-    if (!pagina || !pagina.classList.contains("pagina")) {
-      id = "inicio";
+function showPage(pageId) {
+  const target = document.getElementById(pageId);
+
+  if (!target) return;
+
+  pages.forEach(page => {
+    page.classList.toggle("active-page", page.id === pageId);
+  });
+
+  navLinks.forEach(link => {
+    link.classList.toggle(
+      "active",
+      link.dataset.page === pageId
+    );
+  });
+
+  mainNav.classList.remove("open");
+  menuToggle.setAttribute("aria-expanded", "false");
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+
+// LINKS DO MENU
+
+navLinks.forEach(link => {
+  link.addEventListener("click", event => {
+    event.preventDefault();
+
+    const pageId = link.dataset.page;
+
+    history.replaceState(null, "", `#${pageId}`);
+
+    showPage(pageId);
+  });
+});
+
+
+// LINKS INTERNOS
+
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+
+  if (link.classList.contains("nav-link")) return;
+
+  link.addEventListener("click", event => {
+
+    const pageId = link.getAttribute("href").slice(1);
+
+    if (document.getElementById(pageId)?.classList.contains("page")) {
+
+      event.preventDefault();
+
+      history.replaceState(null, "", `#${pageId}`);
+
+      showPage(pageId);
+    }
+  });
+});
+
+
+// MENU PARA CELULAR
+
+menuToggle.addEventListener("click", () => {
+
+  const isOpen = mainNav.classList.toggle("open");
+
+  menuToggle.setAttribute(
+    "aria-expanded",
+    String(isOpen)
+  );
+
+});
+
+
+// CRIAÇÃO DAS 17 REDAÇÕES
+
+const essayTabs = document.getElementById("essayTabs");
+const essayPanels = document.getElementById("essayPanels");
+
+for (let i = 1; i <= 17; i++) {
+
+  // CRIA O BOTÃO DA ABA
+
+  const tab = document.createElement("button");
+
+  tab.className = i === 1 ? "tab active" : "tab";
+
+  tab.textContent = `Redação ${i}`;
+
+  tab.dataset.target = `redacao${i}`;
+
+  tab.setAttribute("role", "tab");
+
+  essayTabs.appendChild(tab);
+
+
+  // CRIA O CONTEÚDO DA REDAÇÃO
+
+  const panel = document.createElement("article");
+
+  panel.className = i === 1
+    ? "essay-panel active-panel"
+    : "essay-panel";
+
+  panel.id = `redacao${i}`;
+
+  panel.innerHTML = `
+
+    <div class="essay-meta">
+
+      <span>REDAÇÃO ${String(i).padStart(2, "0")}</span>
+
+      <span>ANO / DATA: preencher</span>
+
+    </div>
+
+    <h2>Redação ${i} — título ou tema</h2>
+
+    <p class="essay-theme">
+      Tema: escreva aqui o tema da redação
+    </p>
+
+    <div class="essay-content">
+
+      <p>
+        Coloque aqui o texto da sua redação.
+        Você pode copiar o texto original,
+        mantendo os parágrafos.
+      </p>
+
+      <p>
+        Também vale registrar o que foi mais difícil,
+        quais repertórios utilizou e o que faria diferente hoje.
+      </p>
+
+    </div>
+
+    <div class="reflection">
+
+      <strong>✦ O que ficou de aprendizado?</strong>
+
+      <p>
+        Escreva aqui uma pequena reflexão
+        sobre essa produção.
+      </p>
+
+    </div>
+
+    <div class="essay-image">
+
+      <img
+        src="images/redacao-${i}.jpg"
+        alt="Fotografia da redação ${i}"
+        onerror="this.style.display='none'; this.parentElement.classList.add('image-placeholder')"
+      >
+
+      <span>
+        Adicione uma foto ou digitalização da redação
+      </span>
+
+    </div>
+
+  `;
+
+  essayPanels.appendChild(panel);
+}
+
+
+// TROCA ENTRE AS REDAÇÕES
+
+const tabs = document.querySelectorAll(".tab");
+
+const essayArticles = document.querySelectorAll(".essay-panel");
+
+tabs.forEach(tab => {
+
+  tab.addEventListener("click", () => {
+
+    // Remove a seleção anterior
+
+    tabs.forEach(item => {
+      item.classList.remove("active");
+    });
+
+    essayArticles.forEach(panel => {
+      panel.classList.remove("active-panel");
+    });
+
+    // Ativa a redação escolhida
+
+    tab.classList.add("active");
+
+    const target = document.getElementById(
+      tab.dataset.target
+    );
+
+    if (target) {
+      target.classList.add("active-panel");
     }
 
-    paginas.forEach(p => p.classList.remove("ativa"));
-    document.getElementById(id).classList.add("ativa");
-
-    botoesMenu.forEach(botao => {
-      botao.classList.toggle("selecionado", botao.dataset.go === id);
-    });
-
-    if (id === "redacoes") {
-      esconderDetalhe();
-    }
-
-    if (location.hash !== `#${id}`) {
-      history.pushState({ pagina: id }, "", `#${id}`);
-    }
-  }
-
-  function esconderDetalhe() {
-    if (detalhe) detalhe.hidden = true;
-    if (lista) lista.hidden = false;
-  }
-
-  function abrirRedacao(id) {
-    const redacao = window.redacoes.find(r => String(r.id) === String(id));
-
-    if (!redacao) return;
-
-    titulo.textContent = redacao.titulo || "Redação";
-    tema.textContent = redacao.tema || "";
-
-    texto.replaceChildren();
-
-    String(redacao.texto || "")
-      .split(/\n+/)
-      .filter(paragrafo => paragrafo.trim())
-      .forEach(paragrafo => {
-        const p = document.createElement("p");
-        p.textContent = paragrafo.trim();
-        texto.appendChild(p);
-      });
-
-    lista.hidden = true;
-    detalhe.hidden = false;
-    detalhe.scrollIntoView({ behavior: "smooth" });
-  }
-
-  function criarCardsRedacoes(filtro = "") {
-    lista.replaceChildren();
-
-    const redacoes = window.redacoes || [];
-
-    const filtradas = redacoes.filter(r => {
-      const conteudo = `${r.titulo} ${r.tema} ${r.descricao}`.toLowerCase();
-      return conteudo.includes(filtro.toLowerCase());
-    });
-
-    if (filtradas.length === 0) {
-      lista.textContent = "Nenhuma redação encontrada.";
-      return;
-    }
-
-    filtradas.forEach(redacao => {
-      const card = document.createElement("article");
-      card.className = "card";
-
-      const h3 = document.createElement("h3");
-      h3.textContent = redacao.titulo;
-
-      const p = document.createElement("p");
-      p.textContent = redacao.descricao || redacao.tema || "";
-
-      const botao = document.createElement("button");
-      botao.textContent = "Ler redação";
-      botao.dataset.redacao = redacao.id;
-
-      card.append(h3, p, botao);
-      lista.appendChild(card);
-    });
-  }
-
-  botoesMenu.forEach(botao => {
-    botao.addEventListener("click", () => {
-      mostrarPagina(botao.dataset.go);
-    });
   });
 
-  lista.addEventListener("click", evento => {
-    const botao = evento.target.closest("[data-redacao]");
-    if (botao) abrirRedacao(botao.dataset.redacao);
-  });
+});
 
-  voltar.addEventListener("click", esconderDetalhe);
 
-  pesquisa.addEventListener("input", () => {
-    criarCardsRedacoes(pesquisa.value);
-  });
+// ABRE A PÁGINA CORRETA AO CARREGAR
 
-  window.addEventListener("popstate", () => {
-    const id = location.hash.slice(1) || "inicio";
-    mostrarPaginaSemHistorico(id);
-  });
+const initialPage = location.hash.replace("#", "");
 
-  window.addEventListener("hashchange", () => {
-    const id = location.hash.slice(1) || "inicio";
-    mostrarPaginaSemHistorico(id);
-  });
-
-  function mostrarPaginaSemHistorico(id) {
-    const pagina = document.getElementById(id);
-    if (!pagina || !pagina.classList.contains("pagina")) return;
-
-    paginas.forEach(p => p.classList.remove("ativa"));
-    pagina.classList.add("ativa");
-
-    if (id === "redacoes") esconderDetalhe();
-  }
-
-  function criarGaleria(id, itens) {
-    const galeria = document.getElementById(id);
-    if (!galeria) return;
-
-    galeria.replaceChildren();
-
-    itens.forEach(item => {
-      const card = document.createElement("article");
-      card.className = "card";
-
-      const h3 = document.createElement("h3");
-      h3.textContent = item.titulo;
-
-      const p = document.createElement("p");
-      p.textContent = item.texto;
-
-      card.append(h3, p);
-      galeria.appendChild(card);
-    });
-  }
-
-  criarCardsRedacoes();
-
-  criarGaleria("galeria-infancia", [
-    { titulo: "Minhas lembranças", texto: "Momentos especiais da infância." }
-  ]);
-
-  criarGaleria("galeria-escola", [
-    { titulo: "Minha trajetória", texto: "Experiências e aprendizados da vida escolar." }
-  ]);
-
-  const paginaInicial = location.hash.slice(1) || "inicio";
-  mostrarPaginaSemHistorico(paginaInicial);
-})();
+if (
+  initialPage &&
+  document.getElementById(initialPage)?.classList.contains("page")
+) {
+  showPage(initialPage);
+}
