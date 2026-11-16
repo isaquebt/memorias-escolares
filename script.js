@@ -1,227 +1,204 @@
+(() => {
+  "use strict";
 
-// NAVEGAÇÃO DO SITE
+  const navLinks = [...document.querySelectorAll(".nav-link")];
+  const pages = [...document.querySelectorAll(".page")];
+  const menuToggle = document.getElementById("menuToggle");
+  const mainNav = document.getElementById("mainNav");
 
-const navLinks = document.querySelectorAll(".nav-link");
-const pages = document.querySelectorAll(".page");
+  function showPage(pageId, updateHistory = false) {
+    const target = document.getElementById(pageId);
+    if (!target || !target.classList.contains("page")) return;
 
-const menuToggle = document.getElementById("menuToggle");
-const mainNav = document.getElementById("mainNav");
+    pages.forEach(page => {
+      const active = page.id === pageId;
+      page.classList.toggle("active-page", active);
+      page.setAttribute("aria-hidden", String(!active));
+    });
 
-function showPage(pageId) {
-  const target = document.getElementById(pageId);
+    navLinks.forEach(link => {
+      const active = link.dataset.page === pageId;
+      link.classList.toggle("active", active);
+      if (active) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
 
-  if (!target) return;
+    if (mainNav) mainNav.classList.remove("open");
+    if (menuToggle) {
+      menuToggle.setAttribute("aria-expanded", "false");
+      menuToggle.setAttribute("aria-label", "Abrir menu");
+    }
 
-  pages.forEach(page => {
-    page.classList.toggle("active-page", page.id === pageId);
-  });
+    if (updateHistory) {
+      history.pushState({ page: pageId }, "", `#${pageId}`);
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   navLinks.forEach(link => {
-    link.classList.toggle(
-      "active",
-      link.dataset.page === pageId
-    );
-  });
-
-  mainNav.classList.remove("open");
-  menuToggle.setAttribute("aria-expanded", "false");
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-}
-
-
-// LINKS DO MENU
-
-navLinks.forEach(link => {
-  link.addEventListener("click", event => {
-    event.preventDefault();
-
-    const pageId = link.dataset.page;
-
-    history.replaceState(null, "", `#${pageId}`);
-
-    showPage(pageId);
-  });
-});
-
-
-// LINKS INTERNOS
-
-document.querySelectorAll('a[href^="#"]').forEach(link => {
-
-  if (link.classList.contains("nav-link")) return;
-
-  link.addEventListener("click", event => {
-
-    const pageId = link.getAttribute("href").slice(1);
-
-    if (document.getElementById(pageId)?.classList.contains("page")) {
-
+    link.addEventListener("click", event => {
       event.preventDefault();
-
-      history.replaceState(null, "", `#${pageId}`);
-
-      showPage(pageId);
-    }
-  });
-});
-
-
-// MENU PARA CELULAR
-
-menuToggle.addEventListener("click", () => {
-
-  const isOpen = mainNav.classList.toggle("open");
-
-  menuToggle.setAttribute(
-    "aria-expanded",
-    String(isOpen)
-  );
-
-});
-
-
-// CRIAÇÃO DAS 17 REDAÇÕES
-
-const essayTabs = document.getElementById("essayTabs");
-const essayPanels = document.getElementById("essayPanels");
-
-for (let i = 1; i <= 17; i++) {
-
-  // CRIA O BOTÃO DA ABA
-
-  const tab = document.createElement("button");
-
-  tab.className = i === 1 ? "tab active" : "tab";
-
-  tab.textContent = `Redação ${i}`;
-
-  tab.dataset.target = `redacao${i}`;
-
-  tab.setAttribute("role", "tab");
-
-  essayTabs.appendChild(tab);
-
-
-  // CRIA O CONTEÚDO DA REDAÇÃO
-
-  const panel = document.createElement("article");
-
-  panel.className = i === 1
-    ? "essay-panel active-panel"
-    : "essay-panel";
-
-  panel.id = `redacao${i}`;
-
-  panel.innerHTML = `
-
-    <div class="essay-meta">
-
-      <span>REDAÇÃO ${String(i).padStart(2, "0")}</span>
-
-      <span>ANO / DATA: preencher</span>
-
-    </div>
-
-    <h2>Redação ${i} — título ou tema</h2>
-
-    <p class="essay-theme">
-      Tema: escreva aqui o tema da redação
-    </p>
-
-    <div class="essay-content">
-
-      <p>
-        Coloque aqui o texto da sua redação.
-        Você pode copiar o texto original,
-        mantendo os parágrafos.
-      </p>
-
-      <p>
-        Também vale registrar o que foi mais difícil,
-        quais repertórios utilizou e o que faria diferente hoje.
-      </p>
-
-    </div>
-
-    <div class="reflection">
-
-      <strong>✦ O que ficou de aprendizado?</strong>
-
-      <p>
-        Escreva aqui uma pequena reflexão
-        sobre essa produção.
-      </p>
-
-    </div>
-
-    <div class="essay-image">
-
-      <img
-        src="images/redacao-${i}.jpg"
-        alt="Fotografia da redação ${i}"
-        onerror="this.style.display='none'; this.parentElement.classList.add('image-placeholder')"
-      >
-
-      <span>
-        Adicione uma foto ou digitalização da redação
-      </span>
-
-    </div>
-
-  `;
-
-  essayPanels.appendChild(panel);
-}
-
-
-// TROCA ENTRE AS REDAÇÕES
-
-const tabs = document.querySelectorAll(".tab");
-
-const essayArticles = document.querySelectorAll(".essay-panel");
-
-tabs.forEach(tab => {
-
-  tab.addEventListener("click", () => {
-
-    // Remove a seleção anterior
-
-    tabs.forEach(item => {
-      item.classList.remove("active");
+      showPage(link.dataset.page, true);
     });
-
-    essayArticles.forEach(panel => {
-      panel.classList.remove("active-panel");
-    });
-
-    // Ativa a redação escolhida
-
-    tab.classList.add("active");
-
-    const target = document.getElementById(
-      tab.dataset.target
-    );
-
-    if (target) {
-      target.classList.add("active-panel");
-    }
-
   });
 
-});
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    if (link.classList.contains("nav-link")) return;
 
+    link.addEventListener("click", event => {
+      const pageId = link.getAttribute("href").slice(1);
+      const page = document.getElementById(pageId);
 
-// ABRE A PÁGINA CORRETA AO CARREGAR
+      if (page && page.classList.contains("page")) {
+        event.preventDefault();
+        showPage(pageId, true);
+      }
+    });
+  });
 
-const initialPage = location.hash.replace("#", "");
+  if (menuToggle && mainNav) {
+    menuToggle.addEventListener("click", () => {
+      const open = mainNav.classList.toggle("open");
+      menuToggle.setAttribute("aria-expanded", String(open));
+      menuToggle.setAttribute("aria-label", open ? "Fechar menu" : "Abrir menu");
+    });
+  }
 
-if (
-  initialPage &&
-  document.getElementById(initialPage)?.classList.contains("page")
-) {
-  showPage(initialPage);
-}
+  function syncPageFromAddress() {
+    const pageId = decodeURIComponent(location.hash.replace(/^#/, "")) || "inicio";
+    showPage(pageId, false);
+  }
+
+  window.addEventListener("popstate", syncPageFromAddress);
+  window.addEventListener("hashchange", syncPageFromAddress);
+
+  // Monta automaticamente as 17 redações a partir de redacoes.js.
+  const tabsContainer = document.getElementById("essayTabs");
+  const panelsContainer = document.getElementById("essayPanels");
+  const essays = Array.isArray(window.redacoes) ? window.redacoes : [];
+
+  function activateEssay(id) {
+    const selected = String(id);
+
+    tabsContainer.querySelectorAll(".tab").forEach(button => {
+      const active = button.dataset.target === selected;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-selected", String(active));
+      button.tabIndex = active ? 0 : -1;
+    });
+
+    panelsContainer.querySelectorAll(".essay-panel").forEach(panel => {
+      const active = panel.id === selected;
+      panel.classList.toggle("active-panel", active);
+      panel.hidden = !active;
+    });
+  }
+
+  function makeParagraphs(text) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "essay-content";
+
+    String(text || "O texto desta redação ainda não foi adicionado.")
+      .trim()
+      .split(/\n\s*\n/)
+      .filter(Boolean)
+      .forEach(part => {
+        const p = document.createElement("p");
+        p.textContent = part.trim();
+        wrapper.appendChild(p);
+      });
+
+    return wrapper;
+  }
+
+  if (tabsContainer && panelsContainer) {
+    if (!essays.length) {
+      panelsContainer.textContent =
+        "Não foi possível carregar as redações. Confira se o arquivo redacoes.js está na mesma pasta do index.html.";
+    } else {
+      essays.forEach((essay, index) => {
+        const number = Number(essay.id) || index + 1;
+        const panelId = `redacao${number}`;
+
+        const tab = document.createElement("button");
+        tab.type = "button";
+        tab.className = `tab${index === 0 ? " active" : ""}`;
+        tab.dataset.target = panelId;
+        tab.id = `tab-${panelId}`;
+        tab.setAttribute("role", "tab");
+        tab.setAttribute("aria-controls", panelId);
+        tab.setAttribute("aria-selected", String(index === 0));
+        tab.tabIndex = index === 0 ? 0 : -1;
+        tab.textContent = `Redação ${number}`;
+
+        tab.addEventListener("click", () => activateEssay(panelId));
+
+        tab.addEventListener("keydown", event => {
+          if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) return;
+
+          event.preventDefault();
+
+          const allTabs = [...tabsContainer.querySelectorAll(".tab")];
+          let next = allTabs.indexOf(tab);
+
+          if (event.key === "ArrowRight") next = (next + 1) % allTabs.length;
+          if (event.key === "ArrowLeft") next = (next - 1 + allTabs.length) % allTabs.length;
+          if (event.key === "Home") next = 0;
+          if (event.key === "End") next = allTabs.length - 1;
+
+          allTabs[next].focus();
+          activateEssay(allTabs[next].dataset.target);
+        });
+
+        tabsContainer.appendChild(tab);
+
+        const panel = document.createElement("article");
+        panel.className = `essay-panel${index === 0 ? " active-panel" : ""}`;
+        panel.id = panelId;
+        panel.setAttribute("role", "tabpanel");
+        panel.setAttribute("aria-labelledby", tab.id);
+        panel.hidden = index !== 0;
+
+        const meta = document.createElement("div");
+        meta.className = "essay-meta";
+
+        const label = document.createElement("span");
+        label.textContent = `REDAÇÃO ${String(number).padStart(2, "0")}`;
+
+        const date = document.createElement("span");
+        date.textContent = "REGISTRO ESCOLAR";
+
+        meta.append(label, date);
+
+        const title = document.createElement("h2");
+        title.textContent = essay.titulo || `Redação ${number}`;
+
+        const theme = document.createElement("p");
+        theme.className = "essay-theme";
+        theme.textContent = `Tema: ${essay.tema || essay.descricao || "Não informado"}`;
+
+        panel.append(meta, title, theme, makeParagraphs(essay.texto));
+
+        const reflection = document.createElement("div");
+        reflection.className = "reflection";
+
+        const strong = document.createElement("strong");
+        strong.textContent = "✦ Sobre esta redação";
+
+        const note = document.createElement("p");
+        note.textContent = essay.descricao || essay.tema || "Uma parte da minha trajetória de escrita.";
+
+        reflection.append(strong, note);
+        panel.appendChild(reflection);
+        panelsContainer.appendChild(panel);
+      });
+    }
+  }
+
+  syncPageFromAddress();
+
+  if (tabsContainer && tabsContainer.querySelector(".tab")) {
+    activateEssay(tabsContainer.querySelector(".tab").dataset.target);
+  }
+})();
