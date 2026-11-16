@@ -129,15 +129,16 @@ for (let i = 1; i <= 17; i++) {
     <h2>Redação ${i} — título ou tema</h2>
 
     <p class="essay-theme">
-      Tema: escreva aqui o tema da redação
+      Tema:O RESPEITO ÀS DIFERENÇAS COMO CAMINHO PARA A SUPERAÇÃO DOS CONFLITOS SOCIAIS NA SOCIEDADE CONTEMPORÂNEA
     </p>
 
     <div class="essay-content">
 
       <p>
-        Coloque aqui o texto da sua redação.
-        Você pode copiar o texto original,
-        mantendo os parágrafos.
+        Na sociedade contemporânea, caracteriza-se pela diversidade cultural, religiosa e social, os conflitos tornam-se cada vez mais frequentes devido à dificuldade de convivência entre diferentes grupos. A globalização aproximou diversas pessoas com distintas visões de mundo, mas também evidenciou preconceitos e intolerância. Nesse contexto, o respeito às diferenças mostra-se essencial como meio de promover a harmonia social e reduzir tenções.
+         Em primeiro lugar, a ausência de respeito contribui diretamente para o surgimento de conflitos sócias, como racismo, preconceito e intolerância religiosa. Quando indivíduos não aceitam aquilo que difere, acabam gerando exclusão e desigualdade, intensificando divisões na sociedade. Dessa forma, valorizar a diversidade e reconhecer a importância de cada indivíduo são atitudes fundamentais para diminuir esses problemas.
+             Além disso, a educação exerce um papel fundamental na construção de uma sociedade mais respeitosa. Ao incentivar o diálogo, a empatia e o pensamento crítico, escolas e famílias podem se formar cidadãos mais conscientes e preparados para conviver com as diferenças. Assim, o ensino voltado para a inclusão contribui para a redução de conflitos e para a construção de relações mais saudáveis.
+                Portanto, o respeito às diferenças é indispensável para a superação dos conflitos sociais na atualidade. Para que isso se torne realidade, é necessário investir em educação, promover a conscientização e fortalecer valores como empatia e tolerância. Somente assim será possível construir uma sociedade mais justa, pacífica e igualitária.
       </p>
 
       <p>
